@@ -14,9 +14,18 @@ func executor(fn func()) {
 	fmt.Println("Duration:", time.Since(startTime))
 }
 
+func validateArgs(argsSize int) {
+	if argsSize%2 == 0 {
+		panic("Os replaces devem ser enviados em pares")
+	}
+}
+
 func getArgs() map[string]string {
 	replaces := make(map[string]string)
 	if len(os.Args) > 1 {
+
+		validateArgs(len(os.Args))
+
 		for i := 1; i < len(os.Args); i += 2 {
 			replaces[os.Args[i]] = os.Args[i+1]
 		}
