@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"sync"
 	"time"
 
 	psr "com.github.hugovallada/text-parser/src/parser"
@@ -19,14 +20,17 @@ func timedExecution(fn func()) {
 func main() {
 	timedExecution(func() {
 		fileName, newFileName, replaces, deleteOldFiles := psr.ParseArgs()
-
+		size := len(fileName)
+		var wg sync.WaitGroup
+		wg.Add(size)
 		for index, file := range fileName {
-			executeFileParser(file, newFileName[index], replaces, deleteOldFiles)
+			go executeFileParser(file, newFileName[index], replaces, deleteOldFiles, &wg)
 		}
+		wg.Wait()
 	})
 }
 
-func executeFileParser(fileName string, newFileName string, replaces map[string]string, deleteFile bool) {
+func executeFileParser(fileName string, newFileName string, replaces map[string]string, deleteFile bool, wg *sync.WaitGroup) {
 	file, err := os.OpenFile(fileName, os.O_RDONLY, os.ModeAppend)
 	if err != nil {
 		panic(err)
@@ -45,6 +49,7 @@ func executeFileParser(fileName string, newFileName string, replaces map[string]
 	if deleteFile {
 		os.Remove(fileName)
 	}
+	wg.Done()
 }
 
 func formatText(text string, replaces map[string]string) string {
