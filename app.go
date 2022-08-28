@@ -14,62 +14,52 @@ func executor(fn func()) {
 	fmt.Println("Duration:", time.Since(startTime))
 }
 
-func validateArgs(argsSize int) {
-	if argsSize%2 == 0 {
-		panic("Os replaces devem ser enviados em pares")
+func parseArgs() (string, string, map[string]string) {
+	if len(os.Args) < 4 {
+		panic("Not enough args")
 	}
+	fileName, newFileName, stringOfParsers := os.Args[1], os.Args[2], os.Args[3]
+	return fileName, newFileName, getMapOfParsers(stringOfParsers)
 }
 
-func getArgs() map[string]string {
-	replaces := make(map[string]string)
-	if len(os.Args) > 1 {
-
-		validateArgs(len(os.Args))
-
-		for i := 1; i < len(os.Args); i += 2 {
-			replaces[os.Args[i]] = os.Args[i+1]
-		}
+func getMapOfParsers(stringOfParsers string) map[string]string {
+	sliceOfParsers := strings.Split(stringOfParsers, ",")
+	mapOfParsers := make(map[string]string)
+	for _, parser := range sliceOfParsers {
+		values := strings.Split(parser, "=")
+		mapOfParsers[values[0]] = values[1]
 	}
-	return replaces
+	return mapOfParsers
 }
 
 func main() {
 	executor(func() {
-		replaces := getArgs()
-		file, err := os.OpenFile("acesso.txt", os.O_CREATE, os.ModeAppend)
-
+		fileName, newFileName, replaces := parseArgs()
+		file, err := os.OpenFile(fileName, os.O_CREATE, os.ModeAppend)
 		if err != nil {
 			return
 		}
-
 		defer file.Close()
-
 		fileScanner := bufio.NewScanner(file)
-
 		fileScanner.Split(bufio.ScanLines)
-
-		newFile, err := os.Create("lista_acessos.txt")
-
+		newFile, err := os.Create(newFileName)
 		if err != nil {
 			return
 		}
-
 		defer newFile.Close()
-
 		for fileScanner.Scan() {
 			newFile.WriteString(formatText(fileScanner.Text(), replaces) + "\n")
 		}
+		os.Remove(fileName)
 	})
 }
 
 func formatText(text string, replaces map[string]string) string {
 	text = strings.TrimSpace(text)
-
 	if len(replaces) >= 1 {
 		for older, new := range replaces {
 			text = strings.ReplaceAll(text, older, new)
 		}
 	}
-
 	return text
 }
