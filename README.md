@@ -2,6 +2,24 @@
 
 Projeto criado para gerar novos arquivos de textos, formatados a partir de um arquivo de texto.
 
-## Formatações
-    A formatação default consiste em remover os espaços em branco do início e fim da linha.
-    Podem ser passado via linha de comando, strings a serem substituidas e suas substitutas. Os replaces devem ser enviados em forma de string, separados por =. Ex: go app.go "+=c,-=d".
+## Args
+    -fileNames -> String que contém os arquivos a serem lidos
+        Os arquivos devem ser passados separados por "," ou passados dentro de "" com separação por espaço.
+        Ex: -fileNames acesso.txt,acesso2.txt
+            -fileNames "acesso.txt acesso2.txt"
+
+    -newfileNames -> String que contém o novo nomes dos arquivos.
+        Podem ser separados por "," ou passados dentro de "" com separação por espaço.
+        Ex: -newFileNames acesso.txt,acesso2.txt
+            -newFileNames "acesso.txt acesso2.txt"
+
+    -parsers -> String com valores a serem substituidos e os valores substitutos.
+        Podem ser separados por "," ou passados dentro de "" com separação por espaço.
+        Devem ser escritos em chave/valor separados por =
+        Ex: -parsers *=a,%=C
+        Ex: -parsers "*=a %=C"
+
+        Caso use caracteres com $, usar \$.
+
+    -deleteOld -> Se usado, irá deletar os arquivos antigos
+        
